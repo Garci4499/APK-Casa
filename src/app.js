@@ -126,6 +126,12 @@
     return n.toLocaleString('es-ES', { minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: 2 }) + ' €';
   }
   function budget() { return cfg ? cfg.b : adminCfg.b; }
+  /* Cuántas unidades caben en el tope (solo se enseña si son 2 o más) */
+  function qty(p) { return Math.max(1, Math.floor((budget() + 0.001) / p.price)); }
+  function qtyBadge(p, big) {
+    var n = qty(p);
+    return n > 1 ? '<span class="qty' + (big ? ' big' : '') + '" title="Con tu tope te caben ' + n + '">×' + n + '</span>' : '';
+  }
   function who() { return (cfg ? cfg.n : adminCfg.n) || 'Lastras'; }
   function roomById(id) { return ROOMS.filter(function (r) { return r.id === id; })[0]; }
   function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -239,7 +245,7 @@
     }
     var cards = items.map(function (p) {
       return '<button class="card" type="button" data-act="open" data-id="' + p.id + '">' +
-        '<span class="photo">' + imgTag(p, 'm') + '</span>' +
+        '<span class="photo">' + imgTag(p, 'm') + qtyBadge(p) + '</span>' +
         '<span class="meta"><span class="model">' + esc(p.model) + '</span><span class="desc">' + esc(p.desc) +
         '</span><span class="store">' + esc(p.store) + '</span></span></button>';
     }).join('');
@@ -255,25 +261,28 @@
     if (state.sel === null) return '';
     var p = CATALOG[state.sel];
     return '<div class="scrim" data-act="close-sheet"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(p.model) + '">' +
-      '<span class="photo">' + imgTag(p, 'l') + '</span>' +
+      '<span class="photo">' + imgTag(p, 'l') + qtyBadge(p, true) + '</span>' +
       '<div><p class="store">' + esc(p.store) + '</p><h3>' + esc(p.model) + '</h3><p class="desc">' + esc(p.desc) + '</p></div>' +
+      (qty(p) > 1 ? '<p class="qty-note">Con tu tope te caben <b>' + qty(p) + '</b> de estos.</p>' : '') +
       '<p class="warn">' + (isAdmin ? 'Vista previa: aquí se puede repetir.' : 'Solo puedes elegir uno y después no se puede cambiar.') + '</p>' +
       '<div class="actions"><button class="btn primary" type="button" data-act="pick" data-id="' + p.id + '">Elegir este</button>' +
       '<button class="btn quiet" type="button" data-act="close-sheet-btn">Seguir mirando</button></div></div></div>';
   }
 
   function shareText(p) {
-    return who() + ' ha elegido para su casa nueva: ' + p.model + ' (' + p.desc + '), ' + p.store + '. ' + p.url;
+    var n = qty(p);
+    return who() + ' ha elegido para su casa nueva: ' + (n > 1 ? n + ' × ' : '') + p.model + ' (' + p.desc + '), ' + p.store + '. ' + p.url;
   }
 
   function viewResult() {
     var p = CATALOG[state.choice];
     return previewBar() + '<main class="app result">' +
       '<p class="kicker">Has elegido</p>' +
-      '<span class="photo">' + imgTag(p, 'l') + '</span>' +
+      '<span class="photo">' + imgTag(p, 'l') + qtyBadge(p, true) + '</span>' +
       '<h1>' + esc(p.model) + '</h1>' +
       '<p class="desc">' + esc(p.desc) + '</p>' +
-      '<div class="tag"><span class="pill">' + esc(p.store) + '</span><span class="pill">' + esc(money(p.price)) + '</span></div>' +
+      '<div class="tag"><span class="pill">' + esc(p.store) + '</span><span class="pill">' + esc(money(p.price)) + (qty(p) > 1 ? ' la unidad' : '') + '</span>' +
+      (qty(p) > 1 ? '<span class="pill">Puedes llevarte ' + qty(p) + '</span>' : '') + '</div>' +
       '<div class="actions">' +
       '<a class="btn primary" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(shareText(p)) + '">Avisar a los amigos por WhatsApp</a>' +
       '<button class="btn" type="button" data-act="copy-msg">Copiar el mensaje</button>' +
