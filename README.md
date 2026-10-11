@@ -48,3 +48,9 @@ Los productos están en `src/catalog.js`, uno por línea. Tras editar, vuelve a 
 
 ## Fotos de las habitaciones (opcional)
 La pantalla de inicio trae ilustraciones propias de cada estancia. Si prefieres fotos reales, mete en la carpeta `fotos/` los archivos `cocina.jpg`, `salon.jpg`, `bano.jpg` y `dormitorio.jpg` (también vale png/webp, mejor apaisadas 4:3 y de menos de 300 KB) y vuelve a ejecutar `node build.js ...`. Se incrustan solas.
+
+## iPhone
+Un iPhone no instala APK; se usa la versión web instalable (gratis, sin cuenta de Apple Developer):
+1. En el repositorio: *Settings → Pages → Source: GitHub Actions*. (Pages en repos privados exige plan de pago de GitHub; con repo público es gratis. El presupuesto no está en el repo: se escribe al lanzar la acción y va cifrado dentro de la página.)
+2. *Actions → Publicar versión web → Run workflow*, con presupuesto y nombre.
+3. El enlace aparece al terminar el trabajo. Lastras lo abre en **Safari** → Compartir → **Añadir a pantalla de inicio**. Se abre como una app.
