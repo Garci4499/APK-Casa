@@ -1,0 +1,17 @@
+{
+  "name": "Casa nueva",
+  "short_name": "Casa nueva",
+  "lang": "es",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ECEFF2",
+  "theme_color": "#F5C02B",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Pon aquí cocina.jpg, salon.jpg, bano.jpg y dormitorio.jpg (opcional) y ejecuta node build.js
