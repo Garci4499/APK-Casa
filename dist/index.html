@@ -1061,10 +1061,9 @@ body:has(.cartbar) .app { padding-bottom: 88px; }
     if (state.sel === null) return '';
     var p = CATALOG[state.sel], k = inCart(p), max = k + fits(p);
     var n = Math.min(Math.max(state.n, 0), max);
-    var priceLine = isAdmin ? '<p class="desc">' + esc(money(p.price)) + ' la unidad</p>' : '';
     return '<div class="scrim" data-act="close-sheet"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(p.model) + '">' +
       '<span class="photo">' + imgTag(p, 'l') + (max > 1 ? '<span class="qty big">×' + max + '</span>' : '') + '</span>' +
-      '<div><p class="store">' + esc(p.store) + '</p><h3>' + esc(p.model) + '</h3><p class="desc">' + esc(p.desc) + '</p>' + priceLine + '</div>' +
+      '<div><p class="store">' + esc(p.store) + '</p><h3>' + esc(p.model) + '</h3><p class="desc">' + esc(p.desc) + '</p>' + '</div>' +
       '<div class="stepper" role="group" aria-label="Unidades"><button type="button" data-act="step" data-d="-1" aria-label="Una menos"' + (n <= 0 ? ' disabled' : '') + '>−</button>' +
       '<output aria-live="polite">' + n + '</output>' +
       '<button type="button" data-act="step" data-d="1" aria-label="Una más"' + (n >= max ? ' disabled' : '') + '>+</button></div>' +
@@ -1077,10 +1076,9 @@ body:has(.cartbar) .app { padding-bottom: 88px; }
   function ids() { return Object.keys(cart).map(Number).sort(function (a, b) { return a - b; }); }
 
   function lineHtml(p, q, opts) {
-    var price = isAdmin ? '<span class="pill">' + esc(money(p.price * q)) + '</span>' : '';
     return '<li class="line"><span class="photo">' + imgTag(p, 'm') + '</span>' +
       '<span class="lmeta"><span class="model">' + esc(p.model) + '</span><span class="desc">' + esc(p.desc) + '</span>' +
-      '<span class="store">' + esc(p.store) + '</span>' + price + '</span>' +
+      '<span class="store">' + esc(p.store) + '</span></span>' +
       (opts.edit
         ? '<span class="stepper small"><button type="button" data-act="lstep" data-id="' + p.id + '" data-d="-1" aria-label="Una menos">−</button><output>' + q + '</output>' +
           '<button type="button" data-act="lstep" data-id="' + p.id + '" data-d="1" aria-label="Una más"' + (fits(p) < 1 ? ' disabled' : '') + '>+</button></span>'
@@ -1088,16 +1086,10 @@ body:has(.cartbar) .app { padding-bottom: 88px; }
       (opts.link ? '<a class="lnk" target="_blank" rel="noopener" href="' + esc(p.url) + '">Ver en la tienda</a>' : '') + '</li>';
   }
 
-  function adminTotals(items) {
-    if (!isAdmin) return '';
-    var t = 0; Object.keys(items).forEach(function (k) { t += cents(CATALOG[k].price) * items[k]; });
-    return '<p class="admin-total">Vista previa: ' + esc(money(t / 100)) + ' de ' + esc(money(budget())) + '</p>';
-  }
-
   function viewList() {
     var list = ids();
     var body = list.length
-      ? '<ul class="lines">' + list.map(function (id) { return lineHtml(CATALOG[id], cart[id], { edit: true }); }).join('') + '</ul>' + adminTotals(cart)
+      ? '<ul class="lines">' + list.map(function (id) { return lineHtml(CATALOG[id], cart[id], { edit: true }); }).join('') + '</ul>'
       : '<p class="empty">Tu lista está vacía. Entra en una habitación y añade lo que te haga falta.</p>';
     var actions = '<div class="actions"><button class="btn quiet" type="button" data-act="home">Seguir mirando</button>' +
       (list.length ? (state.confirm
@@ -1123,7 +1115,6 @@ body:has(.cartbar) .app { padding-bottom: 88px; }
     return previewBar() + '<main class="app result">' +
       '<p class="kicker">Has elegido</p><h1>Tu lista de la casa nueva</h1>' +
       '<ul class="lines">' + list.map(function (id) { return lineHtml(CATALOG[id], items[id], { link: true }); }).join('') + '</ul>' +
-      adminTotals(items) +
       '<div class="actions">' +
       '<a class="btn primary" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(shareText(items)) + '">Avisar a los amigos por WhatsApp</a>' +
       '<button class="btn" type="button" data-act="copy-msg">Copiar la lista</button>' +
