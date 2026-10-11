@@ -1,0 +1,52 @@
+name: Publicar versión web (iPhone y cualquier móvil)
+
+# Publica la app como página web instalable (PWA) en GitHub Pages.
+# En iPhone: abrir el enlace en Safari → Compartir → "Añadir a pantalla de inicio".
+# No necesita cuenta de Apple Developer. Ver README para activar Pages.
+on:
+  workflow_dispatch:
+    inputs:
+      presupuesto:
+        description: 'Tope máximo en euros (tu amigo no lo verá)'
+        required: true
+      nombre:
+        description: 'Nombre de tu amigo'
+        required: true
+        default: 'Lastras'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generar la app con el tope escondido
+        env:
+          PRESUPUESTO: ${{ inputs.presupuesto }}
+          NOMBRE: ${{ inputs.nombre }}
+        run: node build.js --budget "$PRESUPUESTO" --name "$NOMBRE"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,61 @@
+name: Construir IPA (iPhone)
+
+# Genera un .ipa SIN FIRMAR. Un iPhone no instala un .ipa sin firmar tal cual:
+# hay que firmarlo al instalarlo (AltStore o Sideloadly con un Apple ID, caduca a los 7 días)
+# o con una cuenta de Apple Developer (99 €/año) para TestFlight. Mira el README.
+on:
+  workflow_dispatch:
+    inputs:
+      presupuesto:
+        description: 'Tope máximo en euros (tu amigo no lo verá)'
+        required: true
+      nombre:
+        description: 'Nombre de tu amigo'
+        required: true
+        default: 'Lastras'
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generar la app con el tope escondido
+        env:
+          PRESUPUESTO: ${{ inputs.presupuesto }}
+          NOMBRE: ${{ inputs.nombre }}
+        run: node build.js --budget "$PRESUPUESTO" --name "$NOMBRE"
+
+      - name: Instalar Capacitor
+        run: npm install
+
+      - name: Crear el proyecto iOS
+        run: |
+          npx cap add ios
+          npx cap sync ios
+
+      - name: Compilar sin firmar
+        working-directory: ios/App
+        run: |
+          xcodebuild archive \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+
+      - name: Empaquetar el .ipa
+        run: |
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qr "$GITHUB_WORKSPACE/casa-nueva.ipa" Payload)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: casa-nueva-ipa
+          path: casa-nueva.ipa

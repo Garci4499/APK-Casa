@@ -69,6 +69,8 @@ const full =
   '<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' +
   '<meta name="theme-color" content="#F5C02B">\n' +
+  '<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n' +
+  '<meta name="apple-mobile-web-app-title" content="Casa nueva">\n<meta name="apple-mobile-web-app-status-bar-style" content="default">\n' +
   '<meta name="referrer" content="no-referrer">\n' +
   '<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="icon.svg" type="image/svg+xml">\n' +
   '<style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>\n' +
