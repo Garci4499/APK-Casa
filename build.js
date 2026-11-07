@@ -90,10 +90,14 @@ fs.writeFileSync(path.join(dist, 'icon.svg'),
   '<path d="M256 118 118 236h40v150h196V236h40z" fill="#15202B"/><rect x="226" y="270" width="60" height="116" rx="6" fill="#F5C02B"/>' +
   '<circle cx="270" cy="332" r="6" fill="#15202B"/></svg>');
 
+/* Service worker: primero red (así una versión nueva se ve al abrir con internet),
+   y la copia guardada solo sirve si no hay conexión. La caja cambia en cada build. */
+const BUILD = Date.now().toString(36);
 fs.writeFileSync(path.join(dist, 'sw.js'),
-  'var C="casa-nueva-v1";var A=["./","index.html","manifest.webmanifest","icon.svg"];\n' +
-  'self.addEventListener("install",function(e){e.waitUntil(caches.open(C).then(function(c){return c.addAll(A)}))});\n' +
+  'var C="casa-nueva-' + BUILD + '";var A=["./","index.html","manifest.webmanifest","icon.svg"];\n' +
+  'self.addEventListener("install",function(e){self.skipWaiting();e.waitUntil(caches.open(C).then(function(c){return c.addAll(A)}))});\n' +
+  'self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n!==C}).map(function(n){return caches.delete(n)}))}).then(function(){return self.clients.claim()}))});\n' +
   'self.addEventListener("fetch",function(e){if(e.request.method!=="GET"||new URL(e.request.url).origin!==location.origin)return;' +
-  'e.respondWith(caches.match(e.request).then(function(r){return r||fetch(e.request)}))});\n');
+  'e.respondWith(fetch(e.request).then(function(r){var cp=r.clone();caches.open(C).then(function(c){c.put(e.request,cp)});return r}).catch(function(){return caches.match(e.request)}))});\n');
 
 console.log('Generado en dist/: index.html, artifact.html, manifest.webmanifest, sw.js, icon.svg');
